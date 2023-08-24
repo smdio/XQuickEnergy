@@ -14,6 +14,7 @@ public class FileUtils {
     private static File mainDirectory;
     private static File configDirectory;
     private static final Map<String, File> configFileMap = new HashMap<>();
+    private static File runtimeInfoFile;
     private static File friendIdMapFile;
     private static File cooperationIdMapFile;
     private static File reserveIdMapFile;
@@ -132,6 +133,19 @@ public class FileUtils {
             }
         }
         return configFileMap.get("Default");
+    }
+
+    public static File runtimeInfoFile() {
+        if (runtimeInfoFile == null) {
+            runtimeInfoFile = new File(getMainDirectoryFile(), "runtimeInfo.json");
+            if (!runtimeInfoFile.exists()) {
+                try {
+                    runtimeInfoFile.createNewFile();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        return runtimeInfoFile;
     }
 
     public static File getFriendIdMapFile() {
@@ -282,24 +296,17 @@ public class FileUtils {
         return result.toString();
     }
 
-    public static void append2SimpleLogFile(String s) {
-        synchronized (getSimpleLogFile()) {
-            if (getSimpleLogFile().length() > 31_457_280) // 30MB
-                getSimpleLogFile().delete();
-            append2File(Log.getFormatDateTime() + "  " + s + "\n", getSimpleLogFile());
-        }
+    public synchronized static void append2SimpleLogFile(String s) {
+        if (getSimpleLogFile().length() > 31_457_280) // 30MB
+            getSimpleLogFile().delete();
+        append2File(Log.getFormatDateTime() + "  " + s + "\n", getSimpleLogFile());
     }
 
-    public static void append2RuntimeLogFile(String s) {
-        synchronized (getRuntimeLogFile()) {
-            if (getRuntimeLogFile().length() > 31_457_280) {// 30MB
-                getRuntimeLogFile().renameTo(getRuntimeLogFileBak());
-                if (getRuntimeLogFile().exists()) {
-                    getRuntimeLogFile().delete();
-                }
-            }
-            append2File(Log.getFormatDateTime() + "  " + s + "\n", getRuntimeLogFile());
+    public synchronized static void append2RuntimeLogFile(String s) {
+        if (getRuntimeLogFile().length() > 31_457_280) {// 30MB
+            getRuntimeLogFile().delete();
         }
+        append2File(Log.getFormatDateTime() + "  " + s + "\n", getRuntimeLogFile());
     }
 
     public static boolean write2File(String s, File f) {
