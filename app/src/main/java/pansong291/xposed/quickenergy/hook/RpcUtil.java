@@ -12,7 +12,6 @@ import pansong291.xposed.quickenergy.util.StringUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
-import java.util.Objects;
 
 public class RpcUtil {
     private static final String TAG = RpcUtil.class.getCanonicalName();
@@ -107,7 +106,7 @@ public class RpcUtil {
                                 }
                             }
                         }
-                    } else if (msg.contains("请求不合法")) {
+                    } else if (msg.contains("[1004]") && "alipay.antmember.forest.h5.collectEnergy".equals(args0)) {
                         if (Config.waitWhenException() > 0) {
                             long waitTime = System.currentTimeMillis() + Config.waitWhenException();
                             RuntimeInfo.getInstance().put(RuntimeInfo.RuntimeInfoKey.ForestPauseTime, waitTime);
